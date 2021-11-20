@@ -12,7 +12,7 @@ namespace BlazorBattles.Client.Pages
 
         private void IncrementCount()
         {
-            currentCount++;
+            currentCount+=3;
         }
     }
 }
