@@ -1,7 +1,10 @@
-﻿<div class="top-menu">
+﻿@inject IBananaService BananaService
+@implements IDisposable
+
+<div class="top-menu">
     <img src="icons/banana.png" />
     <span class="popover-header">
-        @bananas
+        @BananaService.Bananas
     </span>
     <AddBananas BananasAdded="AddBananas"/>
 </div>
@@ -9,6 +12,16 @@
 @code {
     [Parameter]
     public int bananas { get; set; } = 101;
+
+    protected override void OnInitialized()
+    {
+        BananaService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        BananaService.OnChange -= StateHasChanged;
+    }
 
     public void AddBananas(int value)
     {
