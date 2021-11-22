@@ -6,13 +6,10 @@
     <span class="popover-header">
         @BananaService.Bananas
     </span>
-    <AddBananas BananasAdded="AddBananas"/>
+    <AddBananas/>
 </div>
 
 @code {
-    [Parameter]
-    public int bananas { get; set; } = 101;
-
     protected override void OnInitialized()
     {
         BananaService.OnChange += StateHasChanged;
@@ -21,10 +18,5 @@
     public void Dispose()
     {
         BananaService.OnChange -= StateHasChanged;
-    }
-
-    public void AddBananas(int value)
-    {
-        bananas += value;
     }
 }
