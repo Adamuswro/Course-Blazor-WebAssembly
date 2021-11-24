@@ -1,5 +1,6 @@
 ﻿@page "/army"
 @inject IUnitService UnitService
+@attribute [Authorize]
 
 <h3>My Army</h3>
 
@@ -16,7 +17,7 @@
                 }
             </td>
             <td>
-                @UnitService.Units.First(u=>u.Id == unit.UnitId).Title
+                @UnitService.Units.First(u => u.Id == unit.UnitId).Title
             </td>
             <td>
                 @unit.HitPoints HP
