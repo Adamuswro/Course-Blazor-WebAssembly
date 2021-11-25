@@ -60,6 +60,11 @@
 @code {
     UserRegister user = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await UnitService.LoadUnitsAsync();
+    }
+
     void HandleRegistration()
     {
         JSRuntime.InvokeVoidAsync("console.log", "THIS IS THE NEW USER" , user);
