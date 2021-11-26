@@ -1,4 +1,5 @@
-﻿using BlazorBattles.Shared;
+﻿using BlazorBattles.Client.Shared;
+using BlazorBattles.Shared;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Security.Cryptography;
@@ -15,16 +16,16 @@ namespace BlazorBattles.Server.Data
             this.context = dataContext;
         }
 
-        public Task<string> Login(string email, string password)
+        public Task<ServiceResponse<string>> Login(string email, string password)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<int> Register(User user, string passsword)
+        public async Task<ServiceResponse<int>> Register(User user, string passsword)
         {
             if (await UserExist(user.Email))
             {
-                return -1;
+                return new ServiceResponse<int> {Success=false, Message="User already exist." };
             }
 
             CreatePasswordHash(passsword, out byte[] passwordHash, out byte[] passwordSalt);
@@ -35,7 +36,7 @@ namespace BlazorBattles.Server.Data
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
-            return user.Id;
+            return new ServiceResponse<int> { Message = "Registration successful!", Data=user.Id };
         }
 
         public async Task<bool> UserExist(string email)

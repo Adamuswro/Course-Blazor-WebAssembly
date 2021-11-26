@@ -1,12 +1,13 @@
-﻿using BlazorBattles.Shared;
+﻿using BlazorBattles.Client.Shared;
+using BlazorBattles.Shared;
 using System.Threading.Tasks;
 
 namespace BlazorBattles.Server.Data
 {
     public interface IAuthRepository
     {
-        Task<int> Register(User user, string passsword);
-        Task<string> Login(string email, string password);
+        Task<ServiceResponse<int>> Register(User user, string passsword);
+        Task<ServiceResponse<string>> Login(string email, string password);
         Task<bool> UserExist(string email);
     }
 }
