@@ -18,6 +18,13 @@ namespace BlazorBattles.Client.Services
             this.http = http;
         }
 
+        public async Task<ServiceResponse<string>> Login(UserLogin request)
+        {
+            var result = await http.PostAsJsonAsync("api/auth/login", request);
+
+            return await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
+        }
+
         public async Task<ServiceResponse<int>> Register(UserRegister request)
         {
             var result = await http.PostAsJsonAsync("api/auth/register", request);
