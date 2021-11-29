@@ -1,8 +1,14 @@
 ﻿using BlazorBattles.Client.Shared;
 using BlazorBattles.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BlazorBattles.Server.Data
@@ -10,10 +16,12 @@ namespace BlazorBattles.Server.Data
     public class AuthRepository : IAuthRepository
     {
         private readonly DataContext context;
+        private readonly IConfiguration config;
 
-        public AuthRepository(DataContext dataContext)
+        public AuthRepository(DataContext dataContext, IConfiguration config)
         {
             this.context = dataContext;
+            this.config = config;
         }
 
         public async Task<ServiceResponse<string>> Login(string email, string password)
@@ -33,7 +41,7 @@ namespace BlazorBattles.Server.Data
                 return response;
             }
 
-            response.Data = user.Id.ToString();
+            response.Data = CreateToken(user);
             return response;
         }
 
@@ -88,6 +96,28 @@ namespace BlazorBattles.Server.Data
                 }
                 return true;
             }
+        }
+
+        private string CreateToken (User user)
+        {
+            List<Claim> claims = new()
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+            };
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+                config.GetSection("AppSettings:Token").Value));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds);
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
         }
     }
 }
