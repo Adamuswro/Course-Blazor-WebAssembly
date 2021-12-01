@@ -18,17 +18,17 @@ namespace BlazorBattles.Server.Controllers
     [Authorize] //Tkanks to authorize attribute it's possible to access User object (see action GetBananas).
     public class UserController : ControllerBase
     {
-        private readonly DataContext dataContext;
+        private readonly DataContext context;
         private readonly IUtilityService utilityService;
 
         public UserController(DataContext dataContext, IUtilityService utilityService)
         {
-            this.dataContext = dataContext;
+            this.context = dataContext;
             this.utilityService = utilityService;
         }
 
         private int GetUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        private async Task<User> GetUser() => await dataContext.Users.FirstOrDefaultAsync(u => u.Id == GetUserId());
+        private async Task<User> GetUser() => await context.Users.FirstOrDefaultAsync(u => u.Id == GetUserId());
         
         [HttpGet("getbananas")]
         public async Task<IActionResult> GetBananas()
@@ -43,8 +43,32 @@ namespace BlazorBattles.Server.Controllers
             var user = await utilityService.GetUser();
             user.Bananas += bananas;
 
-            await dataContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return Ok(user.Bananas);
+        }
+
+        [HttpGet("leaderboard")]
+        public async Task<IActionResult> GetLeaderboard()
+        {
+            var users = await context.Users.Where(u=>u.IsDeleted == false && u.IsConfirmed == true).ToListAsync();
+
+            users = users.OrderByDescending(u => u.Victories)
+                .ThenBy(u => u.Defeats)
+                .ThenBy(u => u.DateCreated)
+                .ToList();
+
+            int rank = 1;
+            var response = users.Select(u => new UserStatistics
+            {
+                Rank = rank++,
+                UserId = u.Id,
+                UserName = u.Username,
+                Battles = u.Battles,
+                Victories = u.Victories,
+                Defeats = u.Defeats
+            });
+
+            return Ok(response);
         }
     }
 }
