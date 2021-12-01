@@ -3,6 +3,7 @@ using Blazored.Toast.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -13,11 +14,13 @@ namespace BlazorBattles.Client.Services
     {
         private readonly IToastService toastService;
         private readonly HttpClient http;
+        private readonly IBananaService bananaService;
 
-        public UnitService(IToastService toastService, HttpClient http)
+        public UnitService(IToastService toastService, HttpClient http, IBananaService bananaService)
         {
             this.toastService = toastService;
             this.http = http;
+            this.bananaService = bananaService;
         }
 
         public IList<UserUnit> MyUnits { get; set; } = new List<UserUnit>
@@ -28,11 +31,17 @@ namespace BlazorBattles.Client.Services
 
         public IList<Unit> Units { get; set; } = new List<Unit>();
 
-        public void AddUnit(int UnitId)
+        public async Task AddUnit(int UnitId)
         {
             var unit = Units.First(u => u.Id == UnitId);
-            MyUnits.Add(new UserUnit { UnitId = unit.Id, HitPoints = unit.HitPoints });
+            var result = await http.PostAsJsonAsync<int>("api/userunit", UnitId);
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                toastService.ShowError(await result.Content.ReadAsStringAsync());
+                return;
+            }
 
+            await bananaService.GetBananas();
             toastService.ShowSuccess($"Your {unit.Title} has been build!", "Unit build!");
         }
 
@@ -42,6 +51,11 @@ namespace BlazorBattles.Client.Services
             {
                 Units = await http.GetFromJsonAsync<IList<Unit>>("api/Unit");
             }
+        }
+
+        public async Task LoadUserUnitsAsync()
+        {
+            MyUnits = await http.GetFromJsonAsync<IList<UserUnit>>("api/userunit");
         }
     }
 }
