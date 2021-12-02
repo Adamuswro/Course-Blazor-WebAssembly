@@ -1,0 +1,63 @@
+﻿@page "/leaderboard"
+@inject ILeaderboardService LeaderboardService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Leaderboard</h3>
+
+@if (LeaderboardService.Leaderboard == null)
+{
+    <span>Loading...</span>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <td>#</td>
+                <td>User</td>
+                <td>Victories</td>
+                <td>Defeats</td>
+                <td>Battles</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in LeaderboardService.Leaderboard)
+            {
+            <tr style="@GetMySyles(item.UserId)">
+                <td>@item.Rank</td>
+                <td>@item.UserName</td>
+                <td>@item.Victories</td>
+                <td>@item.Defeats</td>
+                <td>@item.Battles</td>
+                <td>
+                    @if (item.UserId != myUserId)
+                    {
+                        <button class="btn btn-primary">Fight</button>
+                    }
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    int myUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LeaderboardService.GetLeaderboard();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        myUserId =  int.Parse(authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+    }
+
+    public string GetMySyles(int userId)
+    {
+        if (userId==myUserId)
+        {
+            return "color: green; font-weight: 600;";
+        }
+        return string.Empty;
+    }
+}
