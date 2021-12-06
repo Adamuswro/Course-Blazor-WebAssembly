@@ -99,7 +99,22 @@ namespace BlazorBattles.Server.Controllers
                 attacker.Bananas += opponentDamageSum ;
                 opponent.Bananas += attackerDamageSum * 10;
             }
+
+            StoreBattleHistory(attacker, opponent, result);
+
             await context.SaveChangesAsync();
+        }
+
+        private void StoreBattleHistory(User attacker, User opponent, BattleResult result)
+        {
+            var battle = new Battle();
+            battle.Attacker = attacker;
+            battle.Opponent= opponent;
+            battle.RoundsFight = result.RoundsFights;
+            battle.WinnerDamage = result.IsVisctory ? result.AttackerDamageSum : result.OpponentDamageSum;
+            battle.Winner = result.IsVisctory ? attacker : opponent;
+
+            context.Battles.Add(battle);
         }
 
         private int FightRound(User opponent, User attacker, List<UserUnit> opponentArmy, List<UserUnit> attackerArmy, BattleResult result)
