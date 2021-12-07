@@ -17,11 +17,13 @@ namespace BlazorBattles.Client.Services
             this.https = https;
         }
 
+        public BattleResult LastBattle { get; set; } = new();
+
         public async Task<BattleResult> StartBattle(int opponentId)
         {
             var result = await https.PostAsJsonAsync("api/battle", opponentId);
-
-            return await result.Content.ReadFromJsonAsync<BattleResult>();
+            LastBattle = await result.Content.ReadFromJsonAsync<BattleResult>();
+            return LastBattle;
         }
     }
 }
