@@ -1,3 +1,4 @@
+using BlazorBattles.Client.Services;
 using BlazorBattles.Server.Data;
 using BlazorBattles.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
