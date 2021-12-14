@@ -9,6 +9,8 @@ namespace BlazorBattles.Client.Services
     public interface IBattleService
     {
         public BattleResult LastBattle { get; set; }
+        public IList<BattleHistoryEntry> History { get; set; }
         public Task<BattleResult> StartBattle(int opponentId);
+        public Task GetHistory();
     }
 }
